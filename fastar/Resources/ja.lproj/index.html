@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>fastar ヘルプ</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+      line-height: 1.6;
+    }
+
+    body {
+      margin: 0;
+      padding: 40px 24px;
+      background: Canvas;
+      color: CanvasText;
+    }
+
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 34px;
+      line-height: 1.15;
+    }
+
+    p {
+      margin: 0 0 24px;
+      color: color-mix(in srgb, CanvasText 72%, transparent);
+    }
+
+    h2 {
+      margin: 28px 0 10px;
+      font-size: 18px;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 22px;
+    }
+
+    li {
+      margin: 8px 0;
+    }
+
+    kbd, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: color-mix(in srgb, CanvasText 10%, transparent);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>fastar ヘルプ</h1>
+    <p>たくさんの画像を、すばやく星でレーティングして選別します。</p>
+
+    <h2>基本的な使い方</h2>
+    <ul>
+      <li>フォルダを開くと、その中の JPG と PNG 画像がリスト表示されます。</li>
+      <li>サムネイル一覧から画像を選ぶと、メインビューアに表示されます。</li>
+      <li>左右のカーソルキーで、前後の画像へ移動できます。</li>
+      <li><kbd>0</kbd> から <kbd>5</kbd> のキーで、現在の画像にレーティングを設定できます。</li>
+      <li>レーティングは、同じファイル名で拡張子が <code>.fastar</code> のサイドカーファイルとして画像の隣に保存されます。</li>
+      <li>サムネイル一覧は、レーティングによるフィルタと、名前またはタイムスタンプによるソートができます。</li>
+      <li>Finder の画像やサムネイル一覧の画像を比較ペインにドラッグすると、メイン画像と並べて比較できます。</li>
+      <li>現在サムネイル一覧に表示されている画像を、別のフォルダへコピーしてエクスポートできます。</li>
+    </ul>
+  </main>
+</body>
+</html>

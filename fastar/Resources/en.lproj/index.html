@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>fastar Help</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    body {
+      margin: 0;
+      padding: 40px 24px;
+      background: Canvas;
+      color: CanvasText;
+    }
+
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 34px;
+      line-height: 1.15;
+    }
+
+    p {
+      margin: 0 0 24px;
+      color: color-mix(in srgb, CanvasText 72%, transparent);
+    }
+
+    h2 {
+      margin: 28px 0 10px;
+      font-size: 18px;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 22px;
+    }
+
+    li {
+      margin: 8px 0;
+    }
+
+    kbd, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: color-mix(in srgb, CanvasText 10%, transparent);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>fastar Help</h1>
+    <p>Star-rate large image sets, fast.</p>
+
+    <h2>Basic Workflow</h2>
+    <ul>
+      <li>Open a folder to list the JPG and PNG images inside it.</li>
+      <li>Select an image from the thumbnail list to open it in the main viewer.</li>
+      <li>Use the Left and Right Arrow keys to move to the previous or next image.</li>
+      <li>Press <kbd>0</kbd> through <kbd>5</kbd> to set the current image rating.</li>
+      <li>Ratings are saved next to each image in a sidecar file with the same filename and the <code>.fastar</code> extension.</li>
+      <li>Use the thumbnail list controls to filter by rating and sort by name or timestamp.</li>
+      <li>Drag an image from Finder or the thumbnail list into the comparison pane to compare it with the main image.</li>
+      <li>Export copies of the images currently shown in the thumbnail list to another folder.</li>
+    </ul>
+  </main>
+</body>
+</html>
