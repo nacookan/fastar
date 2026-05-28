@@ -208,3 +208,9 @@ struct AppError: Identifiable {
     let id = UUID()
     let message: String
 }
+
+enum ExportRatingFormat: Int, CaseIterable {
+    case none
+    case xmp
+    case fastar
+}

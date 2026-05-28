@@ -3,6 +3,10 @@
 "button.ok" = "OK";
 "button.open" = "Open";
 "export.completed" = "Exported %d image(s).";
+"export.ratingFormat.label" = "Rating info:";
+"export.ratingFormat.none" = "Don't include";
+"export.ratingFormat.xmp" = "XMP sidecar (.xmp)";
+"export.ratingFormat.fastar" = "fastar sidecar (.fastar)";
 "exportPanel.message" = "Choose a folder to copy the images currently shown in the thumbnail list.";
 "error.noFilesToExport" = "There are no visible images to export.";
 "filter.all" = "All";
@@ -49,7 +53,7 @@
 "menu.zoom400" = "400%";
 "menu.zoom800" = "800%";
 "menu.zoomFit" = "Fit to Window";
-"openPanel.message" = "Choose a folder containing JPG or PNG images.";
+"openPanel.message" = "Choose a folder containing images.";
 "sort.label" = "Thumbnail sort order";
 "sort.nameAscending" = "Name (Ascending)";
 "sort.nameDescending" = "Name (Descending)";

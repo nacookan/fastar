@@ -3,6 +3,10 @@
 "button.ok" = "OK";
 "button.open" = "開く";
 "export.completed" = "%d 枚の画像をエクスポートしました。";
+"export.ratingFormat.label" = "レーティング情報:";
+"export.ratingFormat.none" = "含めない";
+"export.ratingFormat.xmp" = "XMP サイドカー (.xmp)";
+"export.ratingFormat.fastar" = "fastar サイドカー (.fastar)";
 "exportPanel.message" = "現在サムネイル一覧に表示されている画像のコピー先フォルダを選択してください。";
 "error.noFilesToExport" = "エクスポート対象の画像がありません。";
 "filter.all" = "すべて";
@@ -49,7 +53,7 @@
 "menu.zoom400" = "400%";
 "menu.zoom800" = "800%";
 "menu.zoomFit" = "ウィンドウにフィット";
-"openPanel.message" = "JPG または PNG 画像を含むフォルダを選択してください。";
+"openPanel.message" = "画像を含むフォルダを選択してください。";
 "sort.label" = "サムネイルの並び順";
 "sort.nameAscending" = "名前順(昇順)";
 "sort.nameDescending" = "名前順(降順)";

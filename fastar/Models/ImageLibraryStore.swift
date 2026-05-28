@@ -87,7 +87,7 @@ final class ImageLibraryStore: ObservableObject {
         applyRatingChange(to: selectedID, rating: min(max(rating, 0), 5))
     }
 
-    func exportFilteredImages(to destination: URL) async {
+    func exportFilteredImages(to destination: URL, ratingFormat: ExportRatingFormat) async {
         let files = filteredItems
         guard !files.isEmpty else {
             presentedError = AppError(message: String(localized: "error.noFilesToExport"))
@@ -95,7 +95,7 @@ final class ImageLibraryStore: ObservableObject {
         }
 
         let result = await Task.detached(priority: .userInitiated) {
-            export(files: files, to: destination)
+            export(files: files, to: destination, ratingFormat: ratingFormat)
         }.value
 
         switch result {
@@ -310,7 +310,7 @@ private func loadRating(for imageURL: URL) -> Int {
     return 0
 }
 
-private func export(files: [ImageItem], to destination: URL) -> Result<Int, Error> {
+private func export(files: [ImageItem], to destination: URL, ratingFormat: ExportRatingFormat) -> Result<Int, Error> {
     do {
         var copied = 0
 
@@ -319,9 +319,17 @@ private func export(files: [ImageItem], to destination: URL) -> Result<Int, Erro
             try FileManager.default.copyItem(at: item.url, to: imageDestination)
             copied += 1
 
-            if FileManager.default.fileExists(atPath: item.ratingURL.path) {
-                let sidecarDestination = imageDestination.deletingPathExtension().appendingPathExtension("fastar")
-                try? FileManager.default.copyItem(at: item.ratingURL, to: sidecarDestination)
+            switch ratingFormat {
+            case .none:
+                break
+            case .fastar:
+                if FileManager.default.fileExists(atPath: item.ratingURL.path) {
+                    let sidecarDestination = imageDestination.deletingPathExtension().appendingPathExtension("fastar")
+                    try? FileManager.default.copyItem(at: item.ratingURL, to: sidecarDestination)
+                }
+            case .xmp:
+                let xmpDestination = imageDestination.deletingPathExtension().appendingPathExtension("xmp")
+                try? xmpString(rating: item.rating).write(to: xmpDestination, atomically: true, encoding: .utf8)
             }
         }
 
@@ -329,6 +337,20 @@ private func export(files: [ImageItem], to destination: URL) -> Result<Int, Erro
     } catch {
         return .failure(error)
     }
+}
+
+private func xmpString(rating: Int) -> String {
+    """
+    <?xpacket begin='\u{feff}' id='W5M0MpCehiHzreSzNTczkc9d'?>
+    <x:xmpmeta xmlns:x='adobe:ns:meta/'>
+      <rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+        <rdf:Description rdf:about=''
+          xmlns:xmp='http://ns.adobe.com/xap/1.0/'
+          xmp:Rating='\(rating)'/>
+      </rdf:RDF>
+    </x:xmpmeta>
+    <?xpacket end='w'?>
+    """
 }
 
 private func uniqueDestinationURL(for filename: String, in folder: URL) -> URL {

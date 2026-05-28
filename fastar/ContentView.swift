@@ -296,10 +296,26 @@ struct ContentView: View {
         panel.prompt = String(localized: "button.export")
         panel.message = String(localized: "exportPanel.message")
 
+        let formatPopup = NSPopUpButton(frame: NSRect(x: 148, y: 5, width: 220, height: 26))
+        formatPopup.addItem(withTitle: String(localized: "export.ratingFormat.none"))
+        formatPopup.addItem(withTitle: String(localized: "export.ratingFormat.xmp"))
+        formatPopup.addItem(withTitle: String(localized: "export.ratingFormat.fastar"))
+
+        let accessory = NSView(frame: NSRect(x: 0, y: 0, width: 380, height: 36))
+        let label = NSTextField(labelWithString: String(localized: "export.ratingFormat.label"))
+        label.frame = NSRect(x: 0, y: 9, width: 140, height: 18)
+        label.alignment = .right
+        accessory.addSubview(label)
+        accessory.addSubview(formatPopup)
+        panel.accessoryView = accessory
+        panel.isAccessoryViewDisclosed = true
+
         guard panel.runModal() == .OK, let destination = panel.url else { return }
 
+        let ratingFormat = ExportRatingFormat(rawValue: formatPopup.indexOfSelectedItem) ?? .none
+
         Task {
-            await library.exportFilteredImages(to: destination)
+            await library.exportFilteredImages(to: destination, ratingFormat: ratingFormat)
         }
     }
 
