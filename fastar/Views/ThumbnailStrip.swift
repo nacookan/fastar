@@ -13,10 +13,12 @@ struct ThumbnailStrip: View {
     let isLoading: Bool
     let onSelect: (ImageItem) -> Void
     let onExport: () -> Void
+    var onDropFolder: ((URL) -> Void)? = nil
 
     @State private var visibleThumbnailIDs: Set<URL> = []
     @State private var skipNextSelectionScrollID: URL?
     @State private var pendingSelectionScrollWorkItem: DispatchWorkItem?
+    @State private var isFolderDropTargeted = false
 
     var body: some View {
         HStack(spacing: 0) {
@@ -90,9 +92,55 @@ struct ThumbnailStrip: View {
                 .background(Color(nsColor: .controlBackgroundColor))
         }
         .background(Color(nsColor: .windowBackgroundColor))
+        .overlay {
+            if isFolderDropTargeted {
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(Color.accentColor, style: StrokeStyle(lineWidth: 3, dash: [8, 6]))
+                    .padding(4)
+                    .allowsHitTesting(false)
+            }
+        }
+        .onDrop(
+            of: [UTType.fileURL.identifier, UTType.url.identifier],
+            isTargeted: onDropFolder != nil ? $isFolderDropTargeted : nil,
+            perform: onDropFolder != nil ? handleFolderDrop(providers:) : { _ in false }
+        )
         .onDisappear {
             pendingSelectionScrollWorkItem?.cancel()
         }
+    }
+
+    private func handleFolderDrop(providers: [NSItemProvider]) -> Bool {
+        let typeIdentifiers = [UTType.fileURL.identifier, UTType.url.identifier]
+        guard let provider = providers.first(where: { provider in
+            typeIdentifiers.contains { provider.hasItemConformingToTypeIdentifier($0) }
+        }) else {
+            return false
+        }
+
+        let typeIdentifier = typeIdentifiers.first { provider.hasItemConformingToTypeIdentifier($0) } ?? UTType.fileURL.identifier
+        provider.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { item, _ in
+            let url: URL?
+
+            if let data = item as? Data {
+                url = URL(dataRepresentation: data, relativeTo: nil)
+            } else if let nsURL = item as? NSURL {
+                url = nsURL as URL
+            } else {
+                url = item as? URL ?? (item as? String).flatMap(URL.init(string:))
+            }
+
+            if let url {
+                var isDir: ObjCBool = false
+                let exists = FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir)
+                guard exists && isDir.boolValue else { return }
+                DispatchQueue.main.async {
+                    onDropFolder?(url)
+                }
+            }
+        }
+
+        return true
     }
 
     private func scheduleSelectionScrollIfNeeded(_ selectedID: URL?, with proxy: ScrollViewProxy) {

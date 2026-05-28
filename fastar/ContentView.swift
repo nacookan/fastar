@@ -36,7 +36,8 @@ struct ContentView: View {
                 sortOrder: $library.sortOrder,
                 isLoading: library.isLoadingFolder,
                 onSelect: library.select,
-                onExport: exportFilteredImages
+                onExport: exportFilteredImages,
+                onDropFolder: library.folderURL == nil ? openFolderFromDrop : nil
             )
             .frame(height: 150)
         }
@@ -155,7 +156,8 @@ struct ContentView: View {
                         image: library.currentImage,
                         viewport: $mainViewport,
                         acceptsDrop: false,
-                        onDropURL: { _ in }
+                        onDropURL: { _ in },
+                        onDropFolder: library.folderURL == nil ? openFolderFromDrop : nil
                     )
                     .frame(minWidth: 360)
                 }
@@ -166,7 +168,8 @@ struct ContentView: View {
                     image: library.currentImage,
                     viewport: $mainViewport,
                     acceptsDrop: false,
-                    onDropURL: { _ in }
+                    onDropURL: { _ in },
+                    onDropFolder: library.folderURL == nil ? openFolderFromDrop : nil
                 )
             }
         }
@@ -249,6 +252,14 @@ struct ContentView: View {
                 Capsule()
                     .fill(Color(nsColor: .controlBackgroundColor).opacity(0.55))
             }
+        }
+    }
+
+    private func openFolderFromDrop(_ url: URL) {
+        Task {
+            await library.openFolder(url)
+            mainViewport = ImageViewport()
+            fitMainImage()
         }
     }
 

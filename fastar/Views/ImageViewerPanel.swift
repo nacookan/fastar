@@ -9,8 +9,11 @@ struct ImageViewerPanel: View {
     @Binding var viewport: ImageViewport
     let acceptsDrop: Bool
     let onDropURL: (URL) -> Void
+    var onDropFolder: ((URL) -> Void)? = nil
 
     @State private var isDropTargeted = false
+
+    private var acceptsAnyDrop: Bool { acceptsDrop || onDropFolder != nil }
 
     var body: some View {
         GeometryReader { geometry in
@@ -53,8 +56,8 @@ struct ImageViewerPanel: View {
             .clipped()
             .onDrop(
                 of: [UTType.fileURL.identifier, UTType.url.identifier],
-                isTargeted: acceptsDrop ? $isDropTargeted : nil,
-                perform: acceptsDrop ? handleDrop(providers:) : { _ in false }
+                isTargeted: acceptsAnyDrop ? $isDropTargeted : nil,
+                perform: acceptsAnyDrop ? handleDrop(providers:) : { _ in false }
             )
         }
     }
@@ -93,8 +96,14 @@ struct ImageViewerPanel: View {
             }
 
             if let url {
+                var isDir: ObjCBool = false
+                let exists = FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir)
                 DispatchQueue.main.async {
-                    onDropURL(url)
+                    if exists && isDir.boolValue {
+                        onDropFolder?(url)
+                    } else if acceptsDrop {
+                        onDropURL(url)
+                    }
                 }
             }
         }
