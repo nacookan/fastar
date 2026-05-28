@@ -29,6 +29,8 @@ final class ImageLibraryStore: ObservableObject {
     @Published var isLoadingFolder = false
     @Published var presentedError: AppError?
 
+    weak var undoManager: UndoManager?
+
     private var selectionTask: Task<Void, Never>?
 
     var selectedItem: ImageItem? {
@@ -81,22 +83,8 @@ final class ImageLibraryStore: ObservableObject {
     }
 
     func setRating(_ rating: Int) {
-        guard let selectedID,
-              let index = items.firstIndex(where: { $0.id == selectedID }) else { return }
-
-        let sanitizedRating = min(max(rating, 0), 5)
-        let filteredPosition = filter.matches(sanitizedRating) ? nil :
-            filteredItems.firstIndex(where: { $0.id == selectedID })
-
-        var updatedItem = items[index]
-        updatedItem.rating = sanitizedRating
-        items[index] = updatedItem
-        rebuildFilteredItems()
-        saveRating(for: updatedItem)
-
-        if let pos = filteredPosition {
-            selectNearestVisible(around: pos)
-        }
+        guard let selectedID else { return }
+        applyRatingChange(to: selectedID, rating: min(max(rating, 0), 5))
     }
 
     func exportFilteredImages(to destination: URL) async {
@@ -177,6 +165,42 @@ final class ImageLibraryStore: ObservableObject {
         guard selectedID == nil else { return }
         self.selectedID = filteredItems.first?.id
         loadSelectedImage()
+    }
+
+    private func applyRatingChange(to itemID: URL, rating: Int) {
+        guard let index = items.firstIndex(where: { $0.id == itemID }) else { return }
+
+        let oldRating = items[index].rating
+        guard oldRating != rating else { return }
+
+        let isCurrentlySelected = selectedID == itemID
+        let filteredPositionBeforeChange = filteredItems.firstIndex(where: { $0.id == itemID })
+
+        var updatedItem = items[index]
+        updatedItem.rating = rating
+        items[index] = updatedItem
+        rebuildFilteredItems()
+        saveRating(for: updatedItem)
+
+        let isInFilterAfterChange = filteredItems.contains(where: { $0.id == itemID })
+
+        if isInFilterAfterChange {
+            if selectedID != itemID {
+                selectedID = itemID
+                loadSelectedImage()
+            }
+        } else if isCurrentlySelected, let pos = filteredPositionBeforeChange {
+            selectNearestVisible(around: pos)
+        } else if isCurrentlySelected {
+            selectNearestVisible(around: 0)
+        }
+
+        undoManager?.registerUndo(withTarget: self) { store in
+            MainActor.assumeIsolated {
+                store.applyRatingChange(to: itemID, rating: oldRating)
+            }
+        }
+        undoManager?.setActionName(String(localized: "undo.rating"))
     }
 
     private func selectNearestVisible(around filteredPosition: Int) {

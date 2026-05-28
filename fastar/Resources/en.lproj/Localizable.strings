@@ -35,7 +35,9 @@
 "info.path" = "Path";
 "info.rating" = "Rating";
 "info.title" = "Info";
+"menu.edit" = "Edit";
 "menu.openFolder" = "Open Folder...";
+"undo.rating" = "Change Rating";
 "menu.help" = "fastar Help";
 "menu.rating" = "Rating";
 "menu.ratingValue" = "Rate %d";

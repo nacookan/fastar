@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 
 struct ContentView: View {
     @StateObject private var library = ImageLibraryStore()
+    @Environment(\.undoManager) private var undoManager
 
     @State private var splitEnabled = false
     @State private var linkedViewports = false
@@ -101,6 +102,12 @@ struct ContentView: View {
             if let rating = notification.object as? Int {
                 applyRating(rating)
             }
+        }
+        .onAppear {
+            library.undoManager = undoManager
+        }
+        .onChange(of: undoManager) { _, newValue in
+            library.undoManager = newValue
         }
         .onDisappear {
             ratingToastTask?.cancel()

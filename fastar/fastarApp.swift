@@ -17,6 +17,7 @@ struct FastarApp: App {
             CommandGroup(replacing: .sidebar) { }
             CommandGroup(replacing: .windowSize) { }
             CommandGroup(replacing: .windowArrangement) { }
+            CommandGroup(replacing: .pasteboard) { }
 
             CommandGroup(replacing: .newItem) {
                 Button("menu.openFolder") {

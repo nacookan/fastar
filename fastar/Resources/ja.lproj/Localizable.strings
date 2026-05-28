@@ -35,7 +35,9 @@
 "info.path" = "パス";
 "info.rating" = "レーティング";
 "info.title" = "情報";
+"menu.edit" = "編集";
 "menu.openFolder" = "フォルダを開く...";
+"undo.rating" = "レーティング変更";
 "menu.help" = "fastar ヘルプ";
 "menu.rating" = "レーティング";
 "menu.ratingValue" = "%d に設定";
