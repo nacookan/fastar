@@ -85,14 +85,17 @@ final class ImageLibraryStore: ObservableObject {
               let index = items.firstIndex(where: { $0.id == selectedID }) else { return }
 
         let sanitizedRating = min(max(rating, 0), 5)
+        let filteredPosition = filter.matches(sanitizedRating) ? nil :
+            filteredItems.firstIndex(where: { $0.id == selectedID })
+
         var updatedItem = items[index]
         updatedItem.rating = sanitizedRating
         items[index] = updatedItem
         rebuildFilteredItems()
         saveRating(for: updatedItem)
 
-        if !filter.matches(sanitizedRating) {
-            selectNearestVisible(around: index)
+        if let pos = filteredPosition {
+            selectNearestVisible(around: pos)
         }
     }
 
@@ -176,23 +179,16 @@ final class ImageLibraryStore: ObservableObject {
         loadSelectedImage()
     }
 
-    private func selectNearestVisible(around itemIndex: Int) {
-        let candidateIDs = items.enumerated()
-            .filter { filter.matches($0.element.rating) }
-            .map { ($0.offset, $0.element.id) }
-
-        guard !candidateIDs.isEmpty else {
+    private func selectNearestVisible(around filteredPosition: Int) {
+        guard !filteredItems.isEmpty else {
             selectedID = nil
             currentImage = nil
             currentMetadata = nil
             return
         }
 
-        let nearest = candidateIDs.min { lhs, rhs in
-            abs(lhs.0 - itemIndex) < abs(rhs.0 - itemIndex)
-        }
-
-        selectedID = nearest?.1
+        let nextIndex = min(filteredPosition, filteredItems.count - 1)
+        selectedID = filteredItems[nextIndex].id
         loadSelectedImage()
     }
 
