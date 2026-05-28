@@ -6,6 +6,10 @@ It opens a folder of JPG and PNG images, shows a fast thumbnail strip, lets you 
 
 ![screenshot](docs/screenshot.png)
 
+## Download
+
+Download the latest version from the [Releases page](../../releases/latest).
+
 ## Localization
 
 English and Japanese are supported.
