@@ -4,22 +4,84 @@ import ImageIO
 import UniformTypeIdentifiers
 
 enum ImageMetadataReader {
+    private static let supportedExtensions: Set<String> = {
+        guard let utis = CGImageSourceCopyTypeIdentifiers() as? [String] else { return [] }
+        var extensions = Set<String>()
+        for utiString in utis {
+            if let uti = UTType(utiString) {
+                for ext in uti.tags[.filenameExtension] ?? [] {
+                    extensions.insert(ext.lowercased())
+                }
+            }
+        }
+        return extensions
+    }()
+
     static func isSupportedImageURL(_ url: URL) -> Bool {
-        let ext = url.pathExtension.lowercased()
-        return ["jpg", "jpeg", "png"].contains(ext)
+        supportedExtensions.contains(url.pathExtension.lowercased())
+    }
+
+    static func loadEmbeddedThumbnail(url: URL) async -> NSImage? {
+        await Task.detached(priority: .userInitiated) {
+            guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+
+            // まず埋め込みサムネを試みる（RAWの埋め込みJPEGは高速）
+            let embeddedOpts: [CFString: Any] = [
+                kCGImageSourceCreateThumbnailWithTransform: true,
+                kCGImageSourceThumbnailMaxPixelSize: 2048
+            ]
+            let embedded = CGImageSourceCreateThumbnailAtIndex(source, 0, embeddedOpts as CFDictionary)
+            let embeddedIsUsable = embedded.map { min($0.width, $0.height) >= 600 } ?? false
+
+            // 埋め込みサムネがない・小さすぎる場合はイメージから直接デコード（JPEGは高速）
+            let cgImage: CGImage?
+            if embeddedIsUsable {
+                cgImage = embedded
+            } else {
+                let decodeOpts: [CFString: Any] = [
+                    kCGImageSourceCreateThumbnailFromImageAlways: true,
+                    kCGImageSourceCreateThumbnailWithTransform: true,
+                    kCGImageSourceThumbnailMaxPixelSize: 2048
+                ]
+                cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, decodeOpts as CFDictionary)
+            }
+
+            guard let cgImage, min(cgImage.width, cgImage.height) >= 600 else { return nil }
+
+            // NSImage.size をフル解像度の視覚的寸法に合わせることで、
+            // ズーム倍率の計算をフル画像と一致させる
+            let displaySize: CGSize
+            if let props = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+               let pw = props[kCGImagePropertyPixelWidth] as? CGFloat,
+               let ph = props[kCGImagePropertyPixelHeight] as? CGFloat {
+                let orientation = props[kCGImagePropertyOrientation] as? Int ?? 1
+                let isRotated90 = (5...8).contains(orientation)
+                displaySize = isRotated90 ? CGSize(width: ph, height: pw) : CGSize(width: pw, height: ph)
+            } else {
+                displaySize = CGSize(width: cgImage.width, height: cgImage.height)
+            }
+
+            return NSImage(cgImage: cgImage, size: displaySize)
+        }.value
     }
 
     static func loadDisplayImage(url: URL) async -> NSImage? {
         await Task.detached(priority: .userInitiated) {
-            guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
-                  let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
+            guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else {
                 return NSImage(contentsOf: url)
             }
 
-            return NSImage(
-                cgImage: cgImage,
-                size: CGSize(width: cgImage.width, height: cgImage.height)
-            )
+            let options: [CFString: Any] = [
+                kCGImageSourceCreateThumbnailFromImageAlways: true,
+                kCGImageSourceCreateThumbnailWithTransform: true,
+                kCGImageSourceThumbnailMaxPixelSize: 65536
+            ]
+
+            guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+                return NSImage(contentsOf: url)
+            }
+
+            return NSImage(cgImage: cgImage, size: CGSize(width: cgImage.width, height: cgImage.height))
         }.value
     }
 

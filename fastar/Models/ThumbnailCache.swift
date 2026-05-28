@@ -34,7 +34,7 @@ final class ThumbnailCache {
         }
 
         let options: [CFString: Any] = [
-            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailFromImageIfAbsent: true,
             kCGImageSourceCreateThumbnailWithTransform: true,
             kCGImageSourceThumbnailMaxPixelSize: Int(maxPixelSize)
         ]

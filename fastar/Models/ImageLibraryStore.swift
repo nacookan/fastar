@@ -227,10 +227,19 @@ final class ImageLibraryStore: ObservableObject {
         let url = selectedItem.url
 
         selectionTask = Task {
-            let loadedImage = await ImageMetadataReader.loadDisplayImage(url: url)
+            // フェーズ1: 2048pxプレビューをすぐに表示（RAWは埋め込みサムネ、JPEGは間引きデコード）
+            let thumbnail = await ImageMetadataReader.loadEmbeddedThumbnail(url: url)
             guard !Task.isCancelled else { return }
-            currentImage = loadedImage
+            if let thumbnail {
+                currentImage = thumbnail
+            }
 
+            // フェーズ2: フル画像に差し替え
+            let fullImage = await ImageMetadataReader.loadDisplayImage(url: url)
+            guard !Task.isCancelled else { return }
+            currentImage = fullImage ?? thumbnail
+
+            // フェーズ3: メタデータ読み込み
             try? await Task.sleep(for: .milliseconds(240))
             guard !Task.isCancelled else { return }
 

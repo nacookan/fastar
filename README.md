@@ -2,7 +2,7 @@
 
 Star-rate large image sets, fast.
 
-It opens a folder of JPG and PNG images, shows a fast thumbnail strip, lets you inspect images with zoom and pan controls, assign 0-5 star ratings, filter/sort the current list, export filtered images, and compare images side by side.
+It opens a folder of images (JPEG, PNG, RAW, HEIF, TIFF, and all other formats supported by macOS), shows a fast thumbnail strip, lets you inspect images with zoom and pan controls, assign 0-5 star ratings, filter/sort the current list, export filtered images, and compare images side by side.
 
 ![screenshot](docs/screenshot.png)
 
